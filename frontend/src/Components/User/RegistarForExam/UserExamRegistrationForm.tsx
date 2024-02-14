@@ -283,7 +283,7 @@ const UserLogin: React.FC<Props> = ({ stateDetails, subjectDetails }) => {
                 </Grid>
                 <Grid item xs={12} sm={6}>
                   <ReCAPTCHA
-                    // sitekey="6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI"
+                    
                     sitekey={recaptchId}
                     onChange={handleRecaptcha}
                   />

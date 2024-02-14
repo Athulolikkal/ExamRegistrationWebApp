@@ -2,6 +2,10 @@ import nodemailer from 'nodemailer'
 import cryptoRandomString from 'crypto-random-string'
 import registrationSchema from '../model/registrationModal.js'
 import dotenv from 'dotenv'
+import fs from 'fs'
+import { dirname,join } from 'path';
+import { fileURLToPath } from 'url';
+
 dotenv.config()
 
 const userControllers = {
@@ -17,8 +21,8 @@ const userControllers = {
             const transporter = nodemailer.createTransport({
                 service: 'gmail',
                 auth: {
-                    user: "athul5abuolikkal@gmail.com",
-                    pass: 'dhqlyagoyqofnuic',
+                    user: process.env.USER_EMAIL,
+                    pass: process.env.NODEMAILER_PASS,
                 },
             });
 
@@ -94,12 +98,25 @@ const userControllers = {
     confirmTestByEmail: async (req, res) => {
         try {
             const { email, name, state, city, subject, time } = req?.body
+            //csv data
+            const csvData = `Date and Time,State,City,Subject\n${time},${state},${city},${subject}`;
+
+            // Create a unique filename
+            const __dirname = dirname(fileURLToPath(import.meta.url));
+            console.log(__dirname);
+            const filename = 'test_confirmation.csv';
+            const filePath = join(__dirname, filename);
+           
+           
+            // Write CSV data to a file
+            fs.writeFileSync(filePath, csvData);
+
             const transporter = nodemailer.createTransport({
                 service: 'gmail',
                 auth: {
                     user: process.env.USER_EMAIL,
                     pass: process.env.NODEMAILER_PASS,
-                    // pass: 'dhqlyagoyqofnuic',
+
                 },
             });
             const mailOptions = {
@@ -115,8 +132,13 @@ const userControllers = {
                  City: ${city}
                  Subject: ${subject}
                  `,
-           };
-           transporter.sendMail(mailOptions, (error, info) => {
+                attachments: [{
+                    filename: filename,
+                    path: filePath
+                }]
+            };
+
+            transporter.sendMail(mailOptions, (error, info) => {
                 if (error) {
                     console.log('error happned on sending email', error);
                     res.json({ status: false })
